@@ -1,67 +1,121 @@
-# 🚀 Blog System API 
+# Blog System API
 
-Backend API for a comprehensive blogging platform featuring Group management, Role-Based Access Control (RBAC), and automated Image Hosting.
+A comprehensive Node.js and Express.js RESTful API for a Blog and Community System. This system allows users to register, create posts, form groups, and manage their profiles, while providing administrators with tools to oversee the platform.
+
+## 🚀 Features
+
+- **Authentication & Authorization:**
+  - User registration and login.
+  - Secure authentication using JSON Web Tokens (JWT).
+  - Role-based access control (User, Admin, Super-Admin).
+  
+- **User Management (`/users` & `/admin`):**
+  - Users can view and update their own profiles.
+  - Admins can manage all users (view, modify roles, and delete users).
+
+- **Posts Management (`/posts`):**
+  - Full CRUD operations: Create, read, update, and delete posts.
+  - Image uploading to [ImageKit](https://imagekit.io/) utilizing `multer`.
+  - Fetch personal posts or posts by specific users.
+
+- **Groups Management (`/groups`):**
+  - Create and manage custom groups/communities.
+  - Add or remove members from groups.
+  - Promote members to group admins or demote them.
+  - Leave or delete groups.
+
+- **Validation & Security:**
+  - Secure password hashing using `bcryptjs`.
+  - Request body validation using `Joi` schemas.
+  - Centralized error handling.
+
+## 🛠️ Tech Stack
+
+- **Runtime:** Node.js
+- **Framework:** Express.js
+- **Database:** MongoDB & Mongoose
+- **Authentication:** `jsonwebtoken`
+- **File Uploads:** `multer`, `imagekit`
+- **Data Validation:** `joi`
+- **Security:** `bcryptjs`
+- **Environment Management:** `dotenv`
+
+## ⚙️ Prerequisites
+
+- **Node.js** (v14 or higher)
+- **MongoDB** (Local instance or MongoDB Atlas)
+- **ImageKit Account** (for handling image uploads)
+
+## 📦 Installation & Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd Blog-Application-main
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment Variables:**
+   Create a `.env` file in the root directory and add the following keys:
+   ```env
+   NODE_ENV=development
+   PORT=3000
+   MONGO_URI=your_mongodb_connection_string
+   
+   JWT_SECRET=your_jwt_secret_key
+   JWT_EXPIRES_IN=90d
+   
+   IMAGEKIT_PUBLIC_KEY=your_imagekit_public_key
+   IMAGEKIT_PRIVATE_KEY=your_imagekit_private_key
+   IMAGEKIT_URL_ENDPOINT=your_imagekit_url_endpoint
+   ```
+
+4. **Start the Development Server:**
+   ```bash
+   npm run dev
+   ```
+   *The server should now be running on `http://localhost:3000` (or your customized port).*
 
 ---
 
-## 🛠️ Tech Stack & Features
-- **Runtime**: Node.js & Express.js
-- **Database**: MongoDB (Mongoose ODM)
-- **Authentication**: JWT (JSON Web Tokens) with Bearer Token support.
-- **File Storage**: ImageKit.io integration for cloud image hosting.
-- **Validation**: Middleware-based validation using **Joi**.
-- **Access Control**: Multi-level RBAC (Super-Admin, Admin, User).
+## 📡 API Endpoints Overview
+
+Here is a quick overview of the main endpoints available in this API:
+
+### Authentication (`/auth`)
+- `POST /auth/register` - Register a new user
+- `POST /auth/login` - Login to an existing account
+
+### Users (`/users`)
+- `GET /users/me` - Get current logged-in user profile
+- `PATCH /users/updateMe` - Update profile information
+- `DELETE /users/deleteMe` - Deactivate/Delete profile
+
+### Posts (`/posts`)
+- `GET /posts` - Get all public posts
+- `POST /posts` - Create a new post (supports `multipart/form-data` for images)
+- `GET /posts/my-posts` - Get posts created by the logged-in user
+- `PATCH /posts/:id` - Update a post
+- `DELETE /posts/:id` - Delete a post
+
+### Groups (`/groups`)
+- `GET /groups` - Get all groups
+- `POST /groups` - Create a new group
+- `POST /groups/:groupId/add-member` - Add a user to a group
+- `DELETE /groups/:groupId/remove-member` - Remove a user from a group
+- `PATCH /groups/:groupId/promote` - Promote a member to group admin
+- `DELETE /groups/:groupId` - Delete a group
+
+### Admin (`/admin`)
+- `GET /admin/users` - Get all registered users
+- `PATCH /admin/users/:id/role` - Update user's role (e.g., promote to admin)
+- `DELETE /admin/users/:id` - Delete a user entirely
 
 ---
 
-## 🔐 API Endpoints Reference
-
-### 1️⃣ Authentication (`/auth`)
-| Method | Endpoint | Body (JSON) | Access |
-| :--- | :--- | :--- | :--- |
-| POST | `/register` | `name`, `email`, `password`, `passwordConfirm` | Public |
-| POST | `/login` | `email`, `password` | Public |
-
-### 2️⃣ Users (`/users`)
-| Method | Endpoint | Description | Access |
-| :--- | :--- | :--- | :--- |
-| GET | `/me` | Get current user profile | Authenticated |
-| PATCH | `/updateMe` | Update profile info | Authenticated |
-| DELETE | `/deleteMe` | Deactivate account | Authenticated |
-
-### 3️⃣ Groups (`/groups`)
-| Method | Endpoint | Body (JSON) | Description |
-| :--- | :--- | :--- | :--- |
-| GET | `/` | None | List all groups |
-| POST | `/` | `name`, `description` | Create new group |
-| POST | `/:groupId/add-member` | `userId` | Add member |
-| DELETE | `/:groupId/leave` | None | Leave group |
-| PATCH | `/:groupId/promote` | `userId` | Promote to Admin |
-| PATCH | `/:groupId/demote` | `userId` | Demote from Admin |
-
-### 4️⃣ Posts (`/posts`)
-| Method | Endpoint | Body (Form-Data) | Description |
-| :--- | :--- | :--- | :--- |
-| GET | `/` | None | Get newsfeed posts |
-| POST | `/` | `title`, `content`, `image`, `group` | Create post (Auto Upload) |
-| GET | `/my-posts` | None | Get user's own posts |
-| PATCH | `/:id` | `title`, `content` | Update post |
-| DELETE | `/:id` | None | Delete post |
-
-### 5️⃣ Admin & Super-Admin (`/admin`)
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| GET | `/users` | Super-Admin | List all system users |
-| PATCH | `/users/:id/role` | Super-Admin | Update user role |
-| DELETE | `/users/:id` | Admin/Super-Admin | Delete user from system |
-
----
-
-## 📁 Folder Architecture (MVC)
-```text
-controllers/    # Request handling & Business logic
-models/         # Mongoose schemas (User, Post, Group)
-routes/         # API route definitions
-middlewares/    # Auth, RBAC, and Validation
-utils/          # ImageKit setup & AppError helper
-validators/     # Joi schemas for data validation
+## 📄 License
+This project is licensed under the **ISC License**.
